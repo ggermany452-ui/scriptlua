@@ -4,7 +4,7 @@ local Window = Rayfield:CreateWindow({
    Name = "Roblox Utility Menu",
    LoadingTitle = "Loading Script...",
    LoadingSubtitle = "by Peer Developer",
-   Size = UDim2.new(0, 550, 0, 330), -- Keeps UI sized properly for mobile screen layouts
+   Size = UDim2.new(0, 550, 0, 330), 
    ConfigurationSaving = {
       Enabled = true,
       FolderName = "RayfieldSpecs",
@@ -19,9 +19,10 @@ local Window = Rayfield:CreateWindow({
 })
 
 -- ==========================================
--- TAB 1: PLAYER ESP & DISTANCE
+-- TAB 1: VISUALS & SPEED LOOP
 -- ==========================================
 local Tab1 = Window:CreateTab("Visuals", 4483362458) 
+
 local Section1 = Tab1:CreateSection("Player Tracking")
 
 local ESPEnabled = false
@@ -47,8 +48,46 @@ Tab1:CreateToggle({
    end,
 })
 
+local SectionSpeed = Tab1:CreateSection("Movement Hack")
+
+local SpeedEnabled = false
+
+Tab1:CreateToggle({
+   Name = "Speed Hack (60 Studs)",
+   CurrentValue = false,
+   Flag = "Speed_Loop_Toggle",
+   Callback = function(Value)
+      SpeedEnabled = Value
+      
+      if SpeedEnabled then
+          -- Starts an independent loop thread so it doesn't freeze the UI
+          task.spawn(function()
+              while SpeedEnabled do
+                  local LocalPlayer = game:GetService("Players").LocalPlayer
+                  if LocalPlayer and LocalPlayer.Character then
+                      local Humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                      if Humanoid then
+                          Humanoid.WalkSpeed = 60
+                      end
+                  end
+                  task.wait(0.1) -- Loop checks every 0.1 seconds to keep the speed locked at 60
+              end
+          end)
+      else
+          -- Reset back to normal Roblox speed when toggled off
+          local LocalPlayer = game:GetService("Players").LocalPlayer
+          if LocalPlayer and LocalPlayer.Character then
+              local Humanoid = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+              if Humanoid then
+                  Humanoid.WalkSpeed = 16
+              end
+          end
+      end
+   end,
+})
+
 -- ==========================================
--- TAB 2: INFO & DISCORD (Moved up from Tab 3)
+-- TAB 2: INFO & DISCORD
 -- ==========================================
 local Tab2 = Window:CreateTab("Info", 4483362534) 
 local Section2 = Tab2:CreateSection("About Script")
